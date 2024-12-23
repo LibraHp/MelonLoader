@@ -8,14 +8,14 @@ using MelonLoader.CoreClrUtils;
 
 namespace MelonLoader
 {
-    internal static unsafe class BootstrapInterop
+    public static unsafe class BootstrapInterop
     {
 #if NET6_0_OR_GREATER
-        internal static delegate* unmanaged<void**, void*, void> HookAttach;
-        internal static delegate* unmanaged<void**, void*, void> HookDetach;
+        public static delegate* unmanaged<void**, void*, void> HookAttach;
+        public static delegate* unmanaged<void**, void*, void> HookDetach;
 #endif
 
-        internal static void SetDefaultConsoleTitleWithGameName([MarshalAs(UnmanagedType.LPStr)] string GameName, [MarshalAs(UnmanagedType.LPStr)] string GameVersion = null)
+        public static void SetDefaultConsoleTitleWithGameName([MarshalAs(UnmanagedType.LPStr)] string GameName, [MarshalAs(UnmanagedType.LPStr)] string GameVersion = null)
         {
             if (!MelonLaunchOptions.Console.ShouldSetTitle || MelonLaunchOptions.Console.ShouldHide)
                 return;
@@ -70,7 +70,7 @@ namespace MelonLoader
             NativeStackWalk.RegisterHookAddr((ulong)target, $"Mod-requested detour of 0x{target:X} -> 0x{detour:X}");
         }
 
-        internal static unsafe void NativeHookAttachDirect(IntPtr target, IntPtr detour)
+        public static unsafe void NativeHookAttachDirect(IntPtr target, IntPtr detour)
         {
             HookAttach((void**)target, (void*)detour);
         }

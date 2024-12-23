@@ -14,20 +14,39 @@ using MelonLoader.InternalUtils;
 
 namespace MelonLoader
 {
-    internal static class Core
+    public static class Core
     {
         private static bool _success = true;
 
-        internal static HarmonyLib.Harmony HarmonyInstance;
-        internal static bool Is_ALPHA_PreRelease = false;
+        public static HarmonyLib.Harmony HarmonyInstance;
+        public static bool Is_ALPHA_PreRelease = false;
 
-        internal static int Initialize()
+        public static int Initialize(string GameRootDirectory,string MelonLoaderDirectory)
         {
             var runtimeFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
             var runtimeDirInfo = new DirectoryInfo(runtimeFolder);
+            if (GameRootDirectory != null)
             MelonEnvironment.GameRootDirectory = Path.GetDirectoryName(MelonEnvironment.GameExecutablePath);
             MelonEnvironment.MelonLoaderDirectory = runtimeDirInfo.Parent!.FullName;
 
+            if (!string.IsNullOrEmpty(GameRootDirectory))
+            {
+                MelonEnvironment.GameRootDirectory = Path.GetDirectoryName(MelonEnvironment.GameExecutablePath);
+            }
+            else
+            {
+                MelonEnvironment.GameRootDirectory = GameRootDirectory; // 使用传入的参数作为默认值
+            }
+
+            // 设置MelonLoaderDirectory为默认值，如果传入的参数不为空
+            if (!string.IsNullOrEmpty(MelonLoaderDirectory))
+            {
+                MelonEnvironment.MelonLoaderDirectory = runtimeDirInfo.Parent?.FullName;
+            }
+            else
+            {
+                MelonEnvironment.MelonLoaderDirectory = MelonLoaderDirectory; // 使用传入的参数作为默认值
+            }
             MelonLaunchOptions.Load();
             MelonLogger.Setup();
 
@@ -118,7 +137,7 @@ namespace MelonLoader
             return 0;
         }
 
-        internal static int PreStart()
+        public static int PreStart()
         {
             MelonEvents.OnApplicationEarlyStart.Invoke();
             return MelonStartScreen.LoadAndRun(PreSetup);
@@ -134,7 +153,7 @@ namespace MelonLoader
             return _success ? 0 : 1;
         }
 
-        internal static int Start()
+        public static int Start()
         {
             if (!_success)
                 return 1;
@@ -159,7 +178,7 @@ namespace MelonLoader
             return 0;
         }
         
-        internal static string GetVersionString()
+        public static string GetVersionString()
         {
             var lemon = MelonLaunchOptions.Console.Mode == MelonLaunchOptions.Console.DisplayMode.LEMON;
             var versionStr = $"{(lemon ? "Lemon" : "Melon")}Loader " +
@@ -168,7 +187,7 @@ namespace MelonLoader
             return versionStr;
         }
         
-        internal static void WelcomeMessage()
+        public static void WelcomeMessage()
         {
             //if (MelonDebug.IsEnabled())
             //    MelonLogger.WriteSpacer();
@@ -184,7 +203,7 @@ namespace MelonLoader
             MelonLogger.MsgDirect($"Game Arch: {archString}");
             MelonLogger.MsgDirect("------------------------------");
             MelonLogger.MsgDirect("Command-Line: ");
-            foreach (var pair in MelonLaunchOptions.InternalArguments)
+            foreach (var pair in MelonLaunchOptions.publicArguments)
                 if (string.IsNullOrEmpty(pair.Value))
                     MelonLogger.MsgDirect($"   {pair.Key}");
                 else
@@ -193,7 +212,7 @@ namespace MelonLoader
             MelonEnvironment.PrintEnvironment();
         }
 
-        internal static void Quit()
+        public static void Quit()
         {
             MelonDebug.Msg("[ML Core] Received Quit Request! Shutting down...");
             
